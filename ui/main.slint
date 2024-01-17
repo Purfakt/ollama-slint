@@ -42,7 +42,7 @@ component MessageComponent inherits Rectangle {
     property <bool> is-user: author == Author.User;
 
     HorizontalBox {
-        width: parent.width;
+        width: root.width;
         padding: 5px;
 
         Rectangle {
@@ -92,31 +92,31 @@ component MessageComponent inherits Rectangle {
 
 export component MainWindow inherits Window {
     title: "Hello World";
-    height: 400px;
     width: 500px;
+    height: 1200px;
 
     callback user-input-accepted(string);
 
-    property <[Message]> test-data: [
-        { text: "Hello my guys what's up in the world today?", author: Author.Ollama },
-        { text: "World", author: Author.User },
-        { text: "Hello", author: Author.Ollama },
-        { text: "World", author: Author.User },
-        { text: "Hello", author: Author.Ollama },
-        { text: "World", author: Author.User },
-        { text: "Hello", author: Author.Ollama },
-        { text: "World", author: Author.User },
-        { text: "Hello", author: Author.Ollama },
-        { text: "World", author: Author.User },
-        { text: "Hello", author: Author.Ollama },
-        { text: "World", author: Author.User },
-        { text: "Hello", author: Author.Ollama },
-        { text: "World", author: Author.User },
-        { text: "Hello", author: Author.Ollama },
-        { text: "World", author: Author.User },
-    ];
+    // property <[Message]> test-data: [
+    //     { text: "Hello my guys what's up in the world today?", author: Author.Ollama },
+    //     { text: "World", author: Author.User },
+    //     { text: "Hello", author: Author.Ollama },
+    //     { text: "World", author: Author.User },
+    //     { text: "Hello", author: Author.Ollama },
+    //     { text: "World", author: Author.User },
+    //     { text: "Hello", author: Author.Ollama },
+    //     { text: "World", author: Author.User },
+    //     { text: "Hello", author: Author.Ollama },
+    //     { text: "World", author: Author.User },
+    //     { text: "Hello", author: Author.Ollama },
+    //     { text: "World", author: Author.User },
+    //     { text: "Hello", author: Author.Ollama },
+    //     { text: "World", author: Author.User },
+    //     { text: "Hello", author: Author.Ollama },
+    //     { text: "World", author: Author.User },
+    // ];
 
-    in-out property <[Message]> messages;
+    in-out property <[Message]> messages;//: root.test-data;
     
 
     Rectangle {
@@ -127,8 +127,11 @@ export component MainWindow inherits Window {
 
     VerticalBox { 
         ScrollView {
+            width: root.width;
+            height: root.height - 50px;
             VerticalLayout {
                 spacing: 10px;
+                padding-bottom: 10px;
                 alignment: end;
                 
                 for message in root.messages: MessageComponent {
@@ -137,6 +140,8 @@ export component MainWindow inherits Window {
                 }
             }
         }
+
+
 
         Rectangle {
             background: #fff;

@@ -2,6 +2,8 @@ mod generated_code {
     slint::include_modules!();
 }
 pub use generated_code::*;
+
+mod config;
 mod ollama;
 
 use ollama::OllamaMessage;

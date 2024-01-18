@@ -1,4 +1,4 @@
-use super::{Author, MainWindow, Message};
+use super::{config, Author, MainWindow, Message};
 use ollama_rs::{
     generation::completion::{request::GenerationRequest, GenerationContext},
     Ollama,
@@ -21,13 +21,13 @@ pub struct OllamaWorker {
 
 impl OllamaWorker {
     pub fn new(ui: &MainWindow) -> Self {
-        let (channel, r) = tokio::sync::mpsc::unbounded_channel();
+        let (channel, receiver) = tokio::sync::mpsc::unbounded_channel();
         let worker_thread = std::thread::spawn({
-            let handle_weak = ui.as_weak();
+            let handle = ui.as_weak();
             move || {
                 tokio::runtime::Runtime::new()
                     .unwrap()
-                    .block_on(ollama_worker_loop(r, handle_weak))
+                    .block_on(ollama_worker_loop(receiver, handle))
                     .unwrap()
             }
         });
@@ -44,23 +44,15 @@ impl OllamaWorker {
 }
 
 async fn ollama_worker_loop(
-    mut r: UnboundedReceiver<OllamaMessage>,
+    mut receiver: UnboundedReceiver<OllamaMessage>,
     handle: slint::Weak<MainWindow>,
 ) -> tokio::io::Result<()> {
-    dotenv::dotenv().ok();
-    let ollama_host =
-        std::env::var("OLLAMA_HOST").expect("OLLAMA_HOST environment variable should be set");
-    let ollama_port = std::env::var("OLLAMA_PORT")
-        .expect("OLLAMA_PORT environment variable should be set")
-        .parse::<u16>()
-        .expect("OLLAMA_PORT should be a valid port number");
-    let model = std::env::var("OLLAMA_MODEL").expect("MODEL environment variable should be set");
-
-    let ollama = Ollama::new(ollama_host, ollama_port);
+    let config = config::config();
+    let ollama = Ollama::new(config.ollama_host().to_owned(), config.ollama_port());
     let context: Option<GenerationContext> = None;
 
     loop {
-        let message = match r.recv().await {
+        let message = match receiver.recv().await {
             None => return Ok(()),
             Some(m) => m,
         };
@@ -68,7 +60,8 @@ async fn ollama_worker_loop(
         match message {
             OllamaMessage::Quit => return Ok(()),
             OllamaMessage::Generate { text } => {
-                let mut request = GenerationRequest::new(model.clone(), text.to_string());
+                let mut request =
+                    GenerationRequest::new(config.ollama_model().to_owned(), text.to_string());
 
                 if let Some(context) = context.clone() {
                     request = request.context(context);
@@ -78,16 +71,18 @@ async fn ollama_worker_loop(
                 let response = generate.response.trim().to_owned();
 
                 let weak = &handle.clone();
-                let _ = weak.upgrade_in_event_loop(move |h| {
-                    let mut messages: Vec<Message> = h.get_messages().iter().collect();
-                    messages.push(Message {
-                        text: SharedString::from(response),
-                        author: Author::Ollama,
-                    });
-                    let message_model = std::rc::Rc::new(slint::VecModel::from(messages));
-                    h.set_messages(message_model.into());
-                });
+                let _ = weak.upgrade_in_event_loop(move |h| push_message(h, response));
             }
         }
     }
+}
+
+fn push_message(window: MainWindow, response: String) {
+    let mut messages: Vec<Message> = window.get_messages().iter().collect();
+    messages.push(Message {
+        text: SharedString::from(response),
+        author: Author::Ollama,
+    });
+    let message_model = std::rc::Rc::new(slint::VecModel::from(messages));
+    window.set_messages(message_model.into());
 }

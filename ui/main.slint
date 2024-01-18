@@ -88,33 +88,12 @@ component MessageComponent inherits Rectangle {
     }
 }
 
-
-
 export component MainWindow inherits Window {
     title: "Hello World";
     width: 500px;
     height: 1200px;
 
     callback user-input-accepted(string);
-
-    // property <[Message]> test-data: [
-    //     { text: "Hello my guys what's up in the world today?", author: Author.Ollama },
-    //     { text: "World", author: Author.User },
-    //     { text: "Hello", author: Author.Ollama },
-    //     { text: "World", author: Author.User },
-    //     { text: "Hello", author: Author.Ollama },
-    //     { text: "World", author: Author.User },
-    //     { text: "Hello", author: Author.Ollama },
-    //     { text: "World", author: Author.User },
-    //     { text: "Hello", author: Author.Ollama },
-    //     { text: "World", author: Author.User },
-    //     { text: "Hello", author: Author.Ollama },
-    //     { text: "World", author: Author.User },
-    //     { text: "Hello", author: Author.Ollama },
-    //     { text: "World", author: Author.User },
-    //     { text: "Hello", author: Author.Ollama },
-    //     { text: "World", author: Author.User },
-    // ];
 
     in-out property <[Message]> messages;//: root.test-data;
     
@@ -140,8 +119,6 @@ export component MainWindow inherits Window {
                 }
             }
         }
-
-
 
         Rectangle {
             background: #fff;

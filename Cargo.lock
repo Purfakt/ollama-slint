@@ -1077,10 +1077,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "dotenv"
-version = "0.15.0"
+name = "dotenvy"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
+checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
 name = "downcast-rs"
@@ -2454,7 +2454,7 @@ checksum = "c4cd1a83af159aa67994778be9070f0ae1bd732942279cabb14f86f986a21456"
 name = "local-ollama"
 version = "0.1.0"
 dependencies = [
- "dotenv",
+ "dotenvy",
  "futures",
  "ollama-rs",
  "reqwest",
@@ -2846,9 +2846,9 @@ dependencies = [
 
 [[package]]
 name = "ollama-rs"
-version = "0.1.5"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fb57402b9ed5e0c239459eafba74c28306687354bf6876a6c9e9ce7de39867f"
+checksum = "8d4afa0fc3b4baa5804364e94580210bed42caa6513e26ca2f4aca3e482578a1"
 dependencies = [
  "reqwest",
  "serde",

@@ -49,7 +49,7 @@ async fn ollama_worker_loop(
 ) -> tokio::io::Result<()> {
     let config = config::config();
     let ollama = Ollama::new(config.ollama_host().to_owned(), config.ollama_port());
-    let context: Option<GenerationContext> = None;
+    let mut context: Option<GenerationContext> = None;
 
     loop {
         let message = match receiver.recv().await {
@@ -67,11 +67,14 @@ async fn ollama_worker_loop(
                     request = request.context(context);
                 };
 
-                let generate = ollama.generate(request).await.unwrap();
-                let response = generate.response.trim().to_owned();
+                let response = ollama.generate(request).await.unwrap();
+                context = response.final_data.and_then(|x| Some(x.context));
+                let response_text = response.response;
 
                 let weak = &handle.clone();
-                let _ = weak.upgrade_in_event_loop(move |h| push_message(h, response));
+                let _ = weak.upgrade_in_event_loop(move |h| {
+                    push_message(h, response_text.trim().to_owned())
+                });
             }
         }
     }
